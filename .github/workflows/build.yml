@@ -22,4 +22,3 @@ jobs:
         with:
           name: bypassEnti-dylib
           path: bypassEnti.dylib
-
