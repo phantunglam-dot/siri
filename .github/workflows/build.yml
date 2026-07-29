@@ -15,8 +15,7 @@ jobs:
 
       - name: Compile iOS Dylib
         run: |
-          SDKPATH=$(xcrun --sdk iphoneos --show-sdk-path)
-          clang -dynamiclib -arch arm64 -isysroot "$SDKPATH" -miphoneos-version-min=14.0 bypassEnti.m -o bypassEnti.dylib -framework Foundation -framework UIKit
+          xcrun -sdk iphoneos clang -dynamiclib -target arm64-apple-ios14.0 bypassEnti.m -o bypassEnti.dylib -framework Foundation
 
       - name: Upload Dylib Artifact
         uses: actions/upload-artifact@v4
