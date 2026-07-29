@@ -1,0 +1,41 @@
+#import <Foundation/Foundation.h>
+#import <objc/runtime.h>
+#import <dlfcn.h>
+
+static id Custom_INPreferences_sharedPreferences(id self, SEL _cmd) {
+    return nil;
+}
+
+static id Custom_INPreferences_init(id self, SEL _cmd) {
+    return nil;
+}
+
+__attribute__((constructor))
+static void initBypassEnti(void) {
+    @autoreleasepool {
+        Class inPreferencesClass = objc_getClass("INPreferences");
+        
+        if (!inPreferencesClass) {
+            dlopen("/System/Library/Frameworks/Intents.framework/Intents", RTLD_NOW);
+            inPreferencesClass = objc_getClass("INPreferences");
+        }
+
+        if (inPreferencesClass) {
+            SEL sharedPreferencesSel = NSSelectorFromString(@"sharedPreferences");
+            Method originalSharedMethod = class_getClassMethod(inPreferencesClass, sharedPreferencesSel);
+
+            if (originalSharedMethod) {
+                method_setImplementation(originalSharedMethod, (IMP)Custom_INPreferences_sharedPreferences);
+            } else {
+                Class metaClass = object_getClass((id)inPreferencesClass);
+                class_addMethod(metaClass, sharedPreferencesSel, (IMP)Custom_INPreferences_sharedPreferences, "@@:");
+            }
+
+            SEL initSel = @selector(init);
+            Method originalInitMethod = class_getInstanceMethod(inPreferencesClass, initSel);
+            if (originalInitMethod) {
+                method_setImplementation(originalInitMethod, (IMP)Custom_INPreferences_init);
+            }
+        }
+    }
+}
